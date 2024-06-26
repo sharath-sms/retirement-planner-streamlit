@@ -8,13 +8,40 @@ import plotly.graph_objects as go
 from utils import *
 from calculations import *
 
-st.set_page_config(layout="wide")
+# st.set_page_config(layout="wide")
 
+st.set_page_config(
+    page_title="Retirement Planner & Simulator",
+    layout="wide",
+    menu_items={
+        "Get help": "https://github.com/sharath-sms/retirement-planner-streamlit/issues",
+        "Report a Bug": "https://github.com/sharath-sms/retirement-planner-streamlit/issues",
+        "About": """Retirement Planner & Simulator
 
+https://github.com/sharath-sms/retirement-planner-streamlit
+
+Copyright (c) 2024 Sharath M S
+
+""",
+    }
+)
 # Heading
 
 st.title("Retirement Planner & Simulator")
 st.divider()
+
+
+#
+# About
+#
+
+# def get_info():
+#     # based on https://github.com/LateGenXer/finance/tree/main/rtp
+#     return open(os.path.join(os.path.dirname(__file__), 'README.md'), 'rt').read()
+
+# with st.expander("General Information..."):
+#     st.markdown(get_info())
+
 
 # st.markdown("<h1 style='color: #F39373; padding-bottom: 30px;'>Retirement Planner & Simulator</h1>", unsafe_allow_html=True)
 st.markdown(
@@ -27,16 +54,28 @@ st.markdown(
             <br>
             Few points to be considered 
             <br>
-            a) Extensively used rule such as by Bill Bengen's 4% rule (from which FIRE amount is calculated as '25x of Annual Expenses') is not suited for Indian context. 
+            a) Extensively used rule such as by Bill Bengen's 4% rule [1] (from which FIRE amount is calculated as '25x of Annual Expenses') is not suited for Indian context. 
             <br>
-            b) Eventhough several Indian studies and "experts" propose 3% rule (and thereby propose 33 x Annual expenses to be apt amount for FIRE), it is still fraught with assumptions that many are not commonly aware of.
+            b) Eventhough few Indian studies propose 3% rule [2](and thereby propose 33 x Annual expenses to be apt amount for FIRE), it is still fraught with assumptions that many are not commonly aware of.
             <br>
             c) This tool helps in arriving at the retirement amount considering inflation before as well as after retirement as well as several other factors.
-            This is based on the re  
+            This is based on the retirement planner by Prof. Pattu from FreeFincal  
             <br>
-            d) There are also simulators which you can play around with for considering multiple scenarios for planning
+            d) There are also simulators which you can play around with for considering multiple scenarios for planning (Bucket Strategy Simulator [4])
             <br>
             <br>
+            References:
+            <br>
+            [1] https://retailinvestor.org/determining-withdrawal-rates-using-historical-data/
+            <br>
+            [2] https://samasthiti.in/samasthitis-retirement-calculator/
+            <br>
+            [3] https://freefincal.com/robo-advisory-software/
+            <br>
+            [4] https://freefincal.com/the-retirement-bucket-strategy-simulator/
+            <br>
+            <br>
+
             
     </div>
 """,
@@ -149,7 +188,7 @@ with col3:
             label="Estimated years in Retirement",
             min_value=0,
             max_value=100,
-            value=30,
+            value=40,
             step=1,
         )
     )
@@ -280,7 +319,7 @@ fig.add_trace(
         x=x_axis[: (retire_age - current_age)],
         y=np.array(yearly_corpus_value[: (retire_age - current_age)]),
         mode="lines+markers",
-        name="accumulated corpus",
+        name="Accumulated Corpus",
     )
 )
 
@@ -290,7 +329,8 @@ fig.add_trace(
         x=x_axis[(retire_age - current_age) :],
         y=np.array(yearly_corpus_value[(retire_age - current_age) :]),
         mode="lines+markers",
-        name="remaining retirement corpus",
+        line={'color': 'teal'},
+        name="Remaining Retirement Corpus",
     )
 )
 
@@ -299,7 +339,8 @@ fig.add_trace(
         x=x_axis,
         y=np.array(full_yearly_expenses),
         mode="lines+markers",
-        name="expenses",
+        line={'color': 'red'},
+        name="Expenses",
     )
 )
 fig.add_trace(
@@ -307,7 +348,8 @@ fig.add_trace(
         x=x_axis,
         y=np.array(amt_invested_yearly_till_retire),
         mode="lines+markers",
-        name="amount invested",
+        line={'color': 'pink'},
+        name="Amount Invested",
     )
 )
 fig.update_layout(
@@ -371,11 +413,10 @@ with col3:
         )
 
 
-tab1, tab2, tab3 = st.tabs(
+tab1, tab2 = st.tabs(
     [
         "Results based on the newly entered retirement corpus ",
         "Simulation using the Bucket Strategy",
-        "Simulation using 3% Rule",
     ]
 )
 
@@ -391,7 +432,8 @@ with tab1:
                 x=x_axis[(retire_age - current_age) :],
                 y=np.array(balances_assumed_corpus),
                 mode="lines+markers",
-                name="Retirement corpus",
+                line={'color': 'teal'},
+                name="Remaining Retirement corpus",
             )
         )
 
@@ -400,12 +442,13 @@ with tab1:
                 x=x_axis[(retire_age - current_age) :],
                 y=np.array(yearly_expenses_in_retirement),
                 mode="lines+markers",
-                name="expenses",
+                line={'color': 'red'},
+                name="Expenses",
             )
         )
 
         fig.update_layout(
-            title="Retirement Profile",
+            title="Retirement Profile for the Entered Corpus Amount",
             xaxis_title="Age",
             yaxis_title="Amount",
             legend_title="Legend Title",
@@ -541,7 +584,7 @@ with tab2:
             "Number of times you want to run simulations",
             min_value=1,
             max_value=1000,
-            value=1,
+            value=10,
             step=1,
         ))
         ########## Stop of sidebar Inputs
@@ -600,6 +643,7 @@ with tab2:
                 x=x_axis[(retire_age - current_age) :],
                 y=np.array(yearly_expenses_in_retirement),
                 mode="lines+markers",
+                line={'color': 'red'},
                 name="Expenses",
             )
         )
@@ -609,7 +653,7 @@ with tab2:
                 x=x_axis[(retire_age - current_age) :],
                 y=mean_retirement_balance_simulation,
                 mode="lines+markers",
-                line={'color': 'black'},
+                line={'color': 'teal'},
                 name="Mean Corpus from Bucket Strategy",
             )
         )
@@ -652,5 +696,331 @@ with tab2:
 
 
 
+#################################################################################################################################################
+st.divider()
+st.subheader("Simulation using Percentage Rule")
+tab1, tab2 = st.tabs(
+    [
+        "Results based on the Percentage Rule ",
+        "Simulation using the Bucket Strategy on Corpus obtained from the Percentage Rule ",
+    ]
+)
+with tab1:
+
+    col1, col2 = st.columns(2)
 
 
+    with col1:
+        # 
+        st.subheader("Simulations using 3% Rule ")
+
+        
+        retirement_corpus_3_pct_rule = 100/3*current_expenses_at_retirement
+        
+        st.metric(
+            label=f"Based on Expenses at the start of retirement {format_to_inr(current_expenses_at_retirement)} & based on the 3% rule, you would require ",
+            value=f"{format_to_inr(round(retirement_corpus_3_pct_rule))}",
+        )
+
+
+        
+        balances_3_pct_corpus, yearly_expenses_in_retirement = (
+            calc_retirement_balances_n_expenses(
+                initial_corpus=retirement_corpus_3_pct_rule,
+                inital_expense=current_expenses_at_retirement,
+                inflation=inflation_after_retirement,
+                returns=net_rate_return_expected_after_retire,
+                n_years_in_retire=estimated_years_retirement,
+            )
+        )
+
+        lasting_years_3_pct = sum(np.array(balances_3_pct_corpus) > 0)
+
+        if total_retirement_corpus > retirement_corpus_3_pct_rule:
+
+            st.metric(
+                label=f"Based on the expenses and 3% Withdrawal Rule, this corpus will last",
+                value=f"{lasting_years_3_pct} years",
+            )
+        else:
+            st.write(
+                f"The corpus is likely to last more than {estimated_years_retirement} years based on your expenses and other factors provided"
+            )
+
+
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=x_axis[(retire_age - current_age) :],
+                y=np.array(balances_3_pct_corpus),
+                mode="lines+markers",
+                line={'color': 'teal'},
+                name="Remaining Retirement corpus",
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=x_axis[(retire_age - current_age) :],
+                y=np.array(yearly_expenses_in_retirement),
+                mode="lines+markers",
+                line={'color': 'red'},
+                name="Expenses",
+            )
+        )
+
+        fig.update_layout(
+            title="Retirement Profile based on Amount Obtained from 3 % Rule",
+            xaxis_title="Age",
+            yaxis_title="Amount",
+            legend_title="Legend Title",
+        )
+        st.plotly_chart(fig)
+
+        
+    with col2:
+        # 
+        st.subheader("Simulations using 4% Rule ")
+
+        
+        retirement_corpus_4_pct_rule = 100/4*current_expenses_at_retirement
+        
+        st.metric(
+            label=f"Based on Expenses at the start of retirement {format_to_inr(current_expenses_at_retirement)} & based on the 4% rule, you would require ",
+            value=f"{format_to_inr(round(retirement_corpus_4_pct_rule))}",
+        )
+
+        balances_4_pct_corpus, yearly_expenses_in_retirement = (
+            calc_retirement_balances_n_expenses(
+                initial_corpus=retirement_corpus_4_pct_rule,
+                inital_expense=current_expenses_at_retirement,
+                inflation=inflation_after_retirement,
+                returns=net_rate_return_expected_after_retire,
+                n_years_in_retire=estimated_years_retirement,
+            )
+        )
+
+        lasting_years_4_pct = sum(np.array(balances_4_pct_corpus) > 0)
+
+        if total_retirement_corpus > retirement_corpus_4_pct_rule:
+
+            st.metric(
+                label=f"Based on the expenses and 4% Withdrawal Rule, this corpus will last",
+                value=f"{lasting_years_4_pct} years",
+            )
+        else:
+            st.write(
+                f"The corpus is likely to last more than {estimated_years_retirement} years based on your expenses and other factors provided"
+            )
+
+
+
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=x_axis[(retire_age - current_age) :],
+                y=np.array(balances_4_pct_corpus),
+                mode="lines+markers",
+                line={'color': 'teal'},
+                name="Remaining Retirement corpus",
+            )
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=x_axis[(retire_age - current_age) :],
+                y=np.array(yearly_expenses_in_retirement),
+                mode="lines+markers",
+                line={'color': 'red'},
+                name="Expenses",
+            )
+        )
+
+        fig.update_layout(
+            title="Retirement Profile based on Amount Obtained from 3 % Rule",
+            xaxis_title="Age",
+            yaxis_title="Amount",
+            legend_title="Legend Title",
+        )
+        st.plotly_chart(fig)
+
+
+with tab2:
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+            bucket_results_3pct, expenses = bucket_strategy_simulator(
+                initial_corpus=retirement_corpus_3_pct_rule,
+                inital_expense=current_expenses_at_retirement,
+                inflation=inflation_after_retirement,
+                returns=net_rate_return_expected_after_retire,
+                n_years_in_retire=estimated_years_retirement,
+                fixed_deposit_returns=fixed_deposit_returns,
+                debt_fund_returns=debt_fund_returns,
+                debt_fund_volatility=debt_fund_volatility,
+                hybrid_fund_returns=hybrid_fund_returns,
+                hybrid_fund_volatility=hybrid_fund_volatility,
+                large_cap_returns=large_cap_returns,
+                large_cap_volatility=large_cap_volatility,
+                mid_cap_returns=mid_cap_returns,
+                mid_cap_volatility=mid_cap_volatility,
+                alloc_fixed=alloc_fixed,
+                alloc_debt=alloc_debt,
+                alloc_hybrid=alloc_hybrid,
+                alloc_large_cap=alloc_large_cap,
+                alloc_mid_cap=alloc_mid_cap,
+                num_simulations=num_simulations,
+            )
+
+            bucket_results_3pct = np.array(bucket_results_3pct)
+            mean_retirement_balance_simulation_3pct = np.median(bucket_results_3pct, axis=0)
+            success_rate_bucket_strategy_3pct = np.sum((bucket_results_3pct[:,-1]>0))/num_simulations*100
+
+
+            
+
+            st.metric(
+                label=f"Success rate for the corpus obtained from 3% rule based on the bucket strategy and based on the expenses",
+                value=f"{success_rate_bucket_strategy_3pct} %",
+            )
+            fig = go.Figure()
+
+            # fig.add_trace(
+            #     go.Scatter(
+            #         x=x_axis[(retire_age - current_age) :],
+            #         y=np.array(balances_assumed_corpus),
+            #         mode="lines+markers",
+            #         name="Retirement corpus (based on previous calculations)",
+            #     )
+            # )
+
+            fig.add_trace(
+                go.Scatter(
+                    x=x_axis[(retire_age - current_age) :],
+                    y=np.array(yearly_expenses_in_retirement),
+                    mode="lines+markers",
+                    line={'color': 'red'},
+                    name="Expenses",
+                )
+            )
+
+            fig.add_trace(
+                go.Scatter(
+                    x=x_axis[(retire_age - current_age) :],
+                    y=mean_retirement_balance_simulation_3pct,
+                    mode="lines+markers",
+                    line={'color': 'teal'},
+                    name="Mean Corpus from Bucket Strategy",
+                )
+            )
+
+            fig.update_layout(
+                title="Retirement Portfolio Profile Simulations based on the Bucket Strategy for 3% Rule",
+                xaxis_title="Age",
+                yaxis_title="Amount",
+                legend_title="Legend Title",
+            )
+
+            for i in range(num_simulations):
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=x_axis[(retire_age - current_age) :],
+                        y=np.array(bucket_results_3pct[i]),
+                        mode="lines",
+                        opacity=0.3,
+                        showlegend=False
+                    )
+                )
+
+            st.plotly_chart(fig)
+
+    with col2:
+            bucket_results_4pct, expenses = bucket_strategy_simulator(
+                initial_corpus=retirement_corpus_4_pct_rule,
+                inital_expense=current_expenses_at_retirement,
+                inflation=inflation_after_retirement,
+                returns=net_rate_return_expected_after_retire,
+                n_years_in_retire=estimated_years_retirement,
+                fixed_deposit_returns=fixed_deposit_returns,
+                debt_fund_returns=debt_fund_returns,
+                debt_fund_volatility=debt_fund_volatility,
+                hybrid_fund_returns=hybrid_fund_returns,
+                hybrid_fund_volatility=hybrid_fund_volatility,
+                large_cap_returns=large_cap_returns,
+                large_cap_volatility=large_cap_volatility,
+                mid_cap_returns=mid_cap_returns,
+                mid_cap_volatility=mid_cap_volatility,
+                alloc_fixed=alloc_fixed,
+                alloc_debt=alloc_debt,
+                alloc_hybrid=alloc_hybrid,
+                alloc_large_cap=alloc_large_cap,
+                alloc_mid_cap=alloc_mid_cap,
+                num_simulations=num_simulations,
+            )
+
+            bucket_results_4pct = np.array(bucket_results_4pct)
+            mean_retirement_balance_simulation_4pct = np.median(bucket_results_4pct, axis=0)
+            success_rate_bucket_strategy_4pct = np.sum((bucket_results_4pct[:,-1]>0))/num_simulations*100
+
+
+            
+
+            st.metric(
+                label=f"Success rate for the corpus obtained from 4% rule based on the bucket strategy and based on the expenses",
+                value=f"{success_rate_bucket_strategy_4pct} %",
+            )
+            fig = go.Figure()
+
+            # fig.add_trace(
+            #     go.Scatter(
+            #         x=x_axis[(retire_age - current_age) :],
+            #         y=np.array(balances_assumed_corpus),
+            #         mode="lines+markers",
+            #         name="Retirement corpus (based on previous calculations)",
+            #     )
+            # )
+
+            fig.add_trace(
+                go.Scatter(
+                    x=x_axis[(retire_age - current_age) :],
+                    y=np.array(yearly_expenses_in_retirement),
+                    mode="lines+markers",
+                    line={'color': 'red'},
+                    name="Expenses",
+                )
+            )
+
+            fig.add_trace(
+                go.Scatter(
+                    x=x_axis[(retire_age - current_age) :],
+                    y=mean_retirement_balance_simulation_4pct,
+                    mode="lines+markers",
+                    line={'color': 'teal'},
+                    name="Mean Corpus from Bucket Strategy",
+                )
+            )
+
+            fig.update_layout(
+                title="Retirement Portfolio Profile Simulations based on the Bucket Strategy for 4% Rule",
+                xaxis_title="Age",
+                yaxis_title="Amount",
+                legend_title="Legend Title",
+            )
+
+            for i in range(num_simulations):
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=x_axis[(retire_age - current_age) :],
+                        y=np.array(bucket_results_4pct[i]),
+                        mode="lines",
+                        opacity=0.3,
+                        showlegend=False
+                    )
+                )
+
+            st.plotly_chart(fig)
