@@ -51,28 +51,28 @@ def calc_retirement_balances_n_expenses(
     yearly_expenses = []
     yearly_balances = []
 
-
     inflation = inflation / 100 if inflation > 1.0 else inflation
 
     balances_in_retirement = initial_corpus
 
     for i in range(n_years_in_retire):
 
-        if isinstance(returns,np.ndarray):
+        if isinstance(returns, np.ndarray):
             corpus_returns = returns[i]
-            corpus_returns = corpus_returns / 100 if corpus_returns > 1.0 else corpus_returns
+            corpus_returns = (
+                corpus_returns / 100 if corpus_returns > 1.0 else corpus_returns
+            )
         else:
             returns = returns / 100 if returns > 1.0 else returns
             corpus_returns = returns
-
 
         inflation_adjusted_expenses = calc_compound_returns(
             p=inital_expense, r=inflation, t=i
         )
 
-
         balances_in_retirement = (
-            balances_in_retirement * ((1 + corpus_returns)) - inflation_adjusted_expenses
+            balances_in_retirement * ((1 + corpus_returns))
+            - inflation_adjusted_expenses
         )
         if i == 0 and ignore_first_year_expense:
             balances_in_retirement = initial_corpus
@@ -84,4 +84,3 @@ def calc_retirement_balances_n_expenses(
         yearly_expenses.append(inflation_adjusted_expenses)
 
     return yearly_balances, yearly_expenses
-
