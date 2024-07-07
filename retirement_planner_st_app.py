@@ -818,7 +818,7 @@ with tab1:
         )
 
         fig.update_layout(
-            title="Retirement Profile based on Amount Obtained from 3 % Rule",
+            title="Retirement Profile based on Amount Obtained from 4 % Rule",
             xaxis_title="Age",
             yaxis_title="Amount",
             legend_title="Legend Title",
